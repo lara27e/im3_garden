@@ -1,40 +1,72 @@
 <?php
 /* ============================================================================
-   HANDLUNGSANWEISUNG (load.php)
-   1) Binde 001_config.php (PDO-Config) ein.
-   2) Binde transform.php ein → erhalte TRANSFORM-JSON.
-   3) json_decode(..., true) → Array mit Datensätzen.
-   4) Stelle PDO-Verbindung her (ERRMODE_EXCEPTION, FETCH_ASSOC).
-   5) Bereite INSERT/UPSERT-Statement mit Platzhaltern vor.
-   6) Iteriere über Datensätze und führe execute(...) je Zeile aus.
-   7) Optional: Transaktion verwenden (beginTransaction/commit) für Performance.
-   8) Bei Erfolg: knappe Bestätigung ausgeben (oder still bleiben, je nach Kontext).
-   9) Bei Fehlern: Exception fangen → generische Fehlermeldung/Code (kein Stacktrace).
-  10) Keine Debug-Ausgaben in Produktion; sensible Daten nicht loggen.
+   DATEI: load.php
+   Zweck: Lädt transformierte Wetterdaten in die MySQL-Datenbank.
    ============================================================================ */
 
+// 1️⃣ Transformations-Skript einbinden
+require_once 'transform.php';
 
-// Transformations-Skript  als 'transform.php' einbinden
+// 2️⃣ JSON-Daten (z. B. aus extract.php) laden
+$dataArray = json_decode($transformedDataJson, true);
+// print_r($dataArray);
 
-// Dekodiere die JSON-Daten zu einem Array
 
-// Binde die Datenbankkonfiguration ein
+// 3️⃣ Datenbankkonfiguration einbinden
+require_once '../config.php';
 
 try {
-    // Erstellt eine neue PDO-Instanz mit der Konfiguration aus config.php
+    // 4️⃣ PDO-Verbindung herstellen
+    $pdo = new PDO($dsn, $username, $password, $options);
 
+    // 5️⃣ SQL-Statement vorbereiten (INSERT mit Upsert)
+    $sql = "
+        INSERT INTO wetterdaten 
+            (latitude, longitude, time, city, uvi, temperatur, rain, weather_code)
+        VALUES 
+            (:latitude, :longitude, :time, :city, :uvi, :temperatur, :rain, :weather_code)
+        ON DUPLICATE KEY UPDATE
+            uvi = VALUES(uvi),
+            temperatur = VALUES(temperatur),
+            rain = VALUES(rain),
+            weather_code = VALUES(weather_code)
+    ";
 
-    // SQL-Query mit Platzhaltern für das Einfügen von Daten
-    $sql = "";
-
-    // Bereitet die SQL-Anweisung vor
     $stmt = $pdo->prepare($sql);
 
-    // Fügt jedes Element im Array in die Datenbank ein
+    // 6️⃣ Transaktion starten (schneller & sicherer)
+    $pdo->beginTransaction();
+
     foreach ($dataArray as $item) {
+        $stmt->execute([
+            ':latitude'     => $item['latitude'],
+            ':longitude'    => $item['longitude'],
+            ':time'         => $item['time'],
+            ':city'         => $item['city'],
+            ':uvi'          => $item['uvi'],
+            ':temperatur'   => $item['temperatur'],
+            ':rain'         => $item['rain'],
+            ':weather_code' => $item['weather_code']
+        ]);
     }
 
-    echo "Daten erfolgreich eingefügt.";
+    // 7️⃣ Änderungen speichern
+    $pdo->commit();
+
+    echo "✅ Daten erfolgreich in die Datenbank geladen.";
 } catch (PDOException $e) {
-    die("Verbindung zur Datenbank konnte nicht hergestellt werden: " . $e->getMessage());
+    // Rollback bei Fehlern in der Transaktion
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+
+    // Generische Fehlermeldung (kein sensitives Logging)
+    error_log("DB-Fehler: " . $e->getMessage());
+    die("❌ Fehler beim Laden der Daten.");
 }
+
+/* Hilfsfunktion: Prüft, ob Array assoziativ ist */
+function is_assoc(array $arr): bool {
+    return array_keys($arr) !== range(0, count($arr) - 1);
+}
+?>

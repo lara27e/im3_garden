@@ -1,38 +1,65 @@
 <?php
 
-/* ============================================================================
-   HANDLUNGSANWEISUNG (extract.php)
-   1) Lade Konfiguration/Constants (API-URL, Parameter, ggf. Zeitzone).
-   2) Baue die Request-URL (Query-Params sauber via http_build_query).
-   3) Initialisiere cURL (curl_init) mit der Ziel-URL.
-   4) Setze cURL-Optionen (RETURNTRANSFER, TIMEOUT, HTTP-Header, FOLLOWLOCATION).
-   5) Führe Request aus (curl_exec) und prüfe Transportfehler (curl_error).
-   6) Prüfe HTTP-Status & Content-Type (JSON erwartet), sonst früh abbrechen.
-   7) Dekodiere JSON robust (json_decode(..., true)).
-   8) Normalisiere/prüfe Felder (defensive Defaults, Typen casten).
-   9) Gib die Rohdaten als PHP-Array ZURÜCK (kein echo) für den Transform-Schritt.
-  10) Fehlerfälle: Exception/Fehlerobjekt nach oben reichen (kein HTML ausgeben).
-   ============================================================================ */
+// Liste der Orte mit Namen und Koordinaten
+$places = [
+    ['city' => 'Bern',       'lat' => 46.94809, 'lon' => 7.44744],
+    ['city' => 'Chur',       'lat' => 46.84,    'lon' => 9.52],
+    ['city' => 'Zürich',     'lat' => 47.36667, 'lon' => 8.55],
+    ['city' => 'Aarau',      'lat' => 47.39254, 'lon' => 8.04422],
+    ['city' => 'Bellinzona', 'lat' => 46.19278, 'lon' => 9.01703],
+    ['city' => 'Lausanne',   'lat' => 46.519962,'lon' => 6.633597],
+    ['city' => 'Basel',      'lat' => 47.55839, 'lon' => 7.57327],
+];
 
-function fetchWeatherData()
-{
-    $url = "https://api.open-meteo.com/v1/forecast?latitude=46.9481,46.8499,47.3667&longitude=7.4474,9.5329,8.55&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,rain,showers,snowfall,cloud_cover&temperature_unit=fahrenheit&timezone=auto&forecast_days=1";
+function fetchWeatherDataFor($lat, $lon) {
+    // Baue die URL mit den Parametern dynamisch
+    $params = [
+        'latitude'      => $lat,
+        'longitude'     => $lon,
+        'daily'         => 'uv_index_max',
+        'current'       => 'weather_code,rain,temperature_2m',
+        'timezone'      => 'Europe/Berlin',
+        'forecast_days' => 1,
+        'ref'           => 'freepublicapis.com'
+    ];
+    $url = 'https://api.open-meteo.com/v1/forecast?' . http_build_query($params);
 
-    // Initialisiert eine cURL-Sitzung
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    $err = curl_error($ch);
+    curl_close($ch);
 
+    if ($err) {
+        throw new Exception("cURL error fetching data for {$lat},{$lon}: " . $err);
+    }
 
-    // Setzt Optionen
+    $decoded = json_decode($response, true);
+    if ($decoded === null) {
+        throw new Exception("JSON decode error for {$lat},{$lon}: " . json_last_error_msg());
+    }
 
-
-    // Führt die cURL-Sitzung aus und erhält den Inhalt
-
-
-    // Schließt die cURL-Sitzung
-
-
-    // Dekodiert die JSON-Antwort und gibt Daten zurück
-
+    // Du kannst hier noch Validierungen machen: sind latitude, longitude, current, daily vorhanden etc.
+    return $decoded;
 }
 
-// Gibt die Daten zurück, wenn dieses Skript eingebunden ist
-return fetchWeatherData();
+// Hauptfunktion: ruft alle Orte ab und gibt ein assoziatives Ergebnis zurück
+function extractAllPlaces() {
+    global $places;
+
+    $all = [];
+    foreach ($places as $place) {
+        $lat = $place['lat'];
+        $lon = $place['lon'];
+        $city = $place['city'];
+
+        $data = fetchWeatherDataFor($lat, $lon);
+        // Falls du möchtest, kannst du gleich den Stadtnamen hineinschreiben
+        $data['city'] = $city;  
+        $all[] = $data;
+    }
+    return $all;
+}
+
+// Wenn dieses Skript eingebunden wird:
+return extractAllPlaces();
