@@ -20,6 +20,7 @@ body {
 }
 
 .titel_block {
+    position: relative;
     background-color: #225125;
     padding: 30px;
     padding-bottom: 32px;
@@ -27,30 +28,30 @@ body {
     border: 5px solid #E5F0D7;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     display: inline-block;
+    z-index: 1;
 }
 
 .karten_block {
+    position: relative;
     background-color: #FFFEF7;
     padding: 20px;
     border-radius: 40px;
-    margin-top: 20px;
+    margin-top: -50px;
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     text-align: center;
+    z-index: 0;
 
-    /* Optional: maximale Breite */
     max-width: 800px;
-    width: 90%; /* passt sich dem Bildschirm an */
+    width: 90%;
 }
 
-/* Bild automatisch anpassen */
 .karten_block img {
-    width: 100%;    /* Bild nimmt die volle Breite des Containers ein */
-    height: auto;   /* Höhe passt sich proportional an */
-    border-radius: 20px; /* optional: abgerundete Ecken für das Bild */
+    width: 100%;
+    height: auto;
 }
 
 .karten_bild {
@@ -72,6 +73,8 @@ body {
     height: 1300px; /* gewünschte Höhe */
     justify-content: center;
     align-items: center;
+    max-width: 800px;
+    width: 90%;
 }
 
 .chart-wrapper {
@@ -81,7 +84,8 @@ body {
     background: #FFFEF7;
     border-radius: 40px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    width: 800px;   /* gewünschte Breite */
+    max-width: 800px;
+    width: 90%;
     height: 400px;  /* gewünschte Höhe */
     padding: 10px;
     margin: 10px;
