@@ -1,254 +1,119 @@
-// === Temperatur-Chart ===
-const ctx = document.getElementById('myChart');
-let myChart;
+// === Farben für alle Charts ===
+const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080', '#008080', '#A52A2A'];
 
-// Chart-Konfiguration mit leeren Daten
-const config = {
-  type: 'line',
-  data: {
-    labels: [],
-    datasets: []
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      title: { display: true, text: 'Temperaturverlauf der letzten 30 Tage' },
-    },
-    scales: {
-      x: {
-        title: { display: true, text: 'Datum' },
-        ticks: {
-          font: { size: 9 },
-          callback: function(value) {
-            const label = this.getLabelForValue(value);
-            const date = new Date(label);
-            if (!isNaN(date)) {
-              return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+// === Allgemeine Funktion zum Aufbau der Charts ===
+function buildChart(ctx, type, title, yLabel, dataKey) {
+    return new Chart(ctx, {
+        type: type,
+        data: { labels: [], datasets: [] },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: title },
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Datum + Stunde' },
+                    ticks: {
+                        font: { size: 9 },
+                        callback: function(value) {
+                            const label = this.getLabelForValue(value);
+                            const date = new Date(label);
+                            if (!isNaN(date)) {
+                                return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' }) +
+                                       ' ' + date.getHours() + 'h';
+                            }
+                            return label;
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: dataKey !== 'temperatur',
+                    title: { display: true, text: yLabel }
+                }
             }
-            return label;
-          }
         }
-      },
-      y: {
-        beginAtZero: false,
-        title: { display: true, text: 'Temperatur (°C)' }
-      }
-    }
-  }
-};
-
-// Chart initialisieren
-myChart = new Chart(ctx, config);
-
-// === Temperaturdaten laden ===
-function updateChart() {
-  fetch("https://im3garden.laraeberhard.ch/etl-boilerplate/unload.php")
-    .then(response => response.json())
-    .then(jsonData => {
-      config.data.labels = [];
-      config.data.datasets = [];
-
-      const grouped = {};
-      jsonData.forEach(item => {
-        const date = item.time.split(' ')[0];
-        if (!grouped[item.city]) grouped[item.city] = [];
-        grouped[item.city].push({ date, temperatur: item.temperatur });
-      });
-
-      const allDates = [...new Set(jsonData.map(i => i.time.split(' ')[0]))].sort();
-      config.data.labels = allDates;
-
-      const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080', '#008080', '#A52A2A'];
-
-      Object.keys(grouped).forEach((city, i) => {
-        const temps = allDates.map(date => {
-          const record = grouped[city].find(d => d.date === date);
-          return record ? record.temperatur : null;
-        });
-
-        config.data.datasets.push({
-          label: city,
-          data: temps,
-          borderColor: colors[i % colors.length],
-          backgroundColor: colors[i % colors.length] + '80',
-          tension: 0.3,
-          hidden: i > 2
-        });
-      });
-
-      myChart.update();
-    })
-    .catch(console.error);
+    });
 }
 
-updateChart();
+Chart.defaults.font.family = "'Chewy', cursive";
 
+// === Charts initialisieren ===
+const myChart = buildChart(document.getElementById('myChart'), 'line', 'Temperaturverlauf der letzten 30 Tage', 'Temperatur (°C)', 'temperatur');
+const myChart2 = buildChart(document.getElementById('myChart2'), 'line', 'UV-Index der letzten 30 Tage', 'UV-Index', 'uvi');
+const myChart3 = buildChart(document.getElementById('myChart3'), 'bar', 'Niederschlag der letzten 30 Tage', 'Regen (mm)', 'rain');
 
-// === UV-Index-Chart ===
-const ctx2 = document.getElementById('myChart2');
-let myChart2;
+// === Daten abrufen und Charts updaten ===
+function updateCharts() {
+    fetch("https://im3garden.laraeberhard.ch/etl-boilerplate/unload.php")
+        .then(response => response.json())
+        .then(jsonData => {
+            // Alle eindeutigen Zeitpunkte (Datum + Stunde)
+            const allTimes = [...new Set(jsonData.map(i => i.time))].sort();
 
-const config2 = {
-  type: 'line',
-  data: { labels: [], datasets: [] },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      title: { display: true, text: 'UV-Index der letzten 30 Tage' },
-    },
-    scales: {
-      x: {
-        title: { display: true, text: 'Datum' },
-        ticks: {
-          font: { size: 9 },
-          callback: function(value) {
-            const label = this.getLabelForValue(value);
-            const date = new Date(label);
-            if (!isNaN(date)) {
-              return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
+            // Für jeden Chart die Daten vorbereiten
+            const grouped = { temperatur: {}, uvi: {}, rain: {} };
+
+            jsonData.forEach(item => {
+                const city = item.city;
+                if (!grouped.temperatur[city]) grouped.temperatur[city] = [];
+                if (!grouped.uvi[city]) grouped.uvi[city] = [];
+                if (!grouped.rain[city]) grouped.rain[city] = [];
+
+                grouped.temperatur[city].push({ time: item.time, value: item.temperatur });
+                grouped.uvi[city].push({ time: item.time, value: item.uvi });
+                grouped.rain[city].push({ time: item.time, value: item.rain });
+            });
+
+            // Helper: Daten für einen Chart zusammenstellen
+            function buildDataset(groupedData, allTimes, key) {
+                return Object.keys(groupedData).map((city, i) => {
+                    const data = allTimes.map(time => {
+                        const record = groupedData[city].find(d => d.time === time);
+                        return record ? record.value : null;
+                    });
+                    return {
+                        label: city,
+                        data: data,
+                        borderColor: colors[i % colors.length],
+                        backgroundColor: colors[i % colors.length] + (key === 'rain' ? '80' : '40'),
+                        tension: 0.3,
+                        hidden: i > 2
+                    };
+                });
             }
-            return label;
-          }
-        }
-      },
-      y: {
-        beginAtZero: true,
-        title: { display: true, text: 'UV-Index' }
-      }
-    }
-  }
-};
 
-myChart2 = new Chart(ctx2, config2);
+            // Charts updaten
+            myChart.data.labels = allTimes;
+            myChart.data.datasets = buildDataset(grouped.temperatur, allTimes, 'temperatur');
+            myChart.update();
 
-function updateChart2() {
-  fetch("https://im3garden.laraeberhard.ch/etl-boilerplate/unload.php")
-    .then(response => response.json())
-    .then(jsonData => {
-      config2.data.labels = [];
-      config2.data.datasets = [];
+            myChart2.data.labels = allTimes;
+            myChart2.data.datasets = buildDataset(grouped.uvi, allTimes, 'uvi');
+            myChart2.update();
 
-      const grouped = {};
-      jsonData.forEach(item => {
-        const date = item.time.split(' ')[0];
-        if (!grouped[item.city]) grouped[item.city] = [];
-        grouped[item.city].push({ date, uvi: item.uvi });
-      });
-
-      const allDates = [...new Set(jsonData.map(i => i.time.split(' ')[0]))].sort();
-      config2.data.labels = allDates;
-
-      const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080', '#008080', '#A52A2A'];
-
-      Object.keys(grouped).forEach((city, i) => {
-        const uviData = allDates.map(date => {
-          const record = grouped[city].find(d => d.date === date);
-          return record ? record.uvi : null;
-        });
-
-        config2.data.datasets.push({
-          label: city,
-          data: uviData,
-          borderColor: colors[i % colors.length],
-          backgroundColor: colors[i % colors.length] + '80',
-          tension: 0.3,
-          hidden: i > 2
-        });
-      });
-
-      myChart2.update();
-    })
-    .catch(console.error);
+            myChart3.data.labels = allTimes;
+            myChart3.data.datasets = buildDataset(grouped.rain, allTimes, 'rain');
+            myChart3.update();
+        })
+        .catch(console.error);
 }
 
-updateChart2();
-
-
-// === Regen-Chart ===
-const ctx3 = document.getElementById('myChart3');
-let myChart3;
-
-const config3 = {
-  type: 'bar',
-  data: { labels: [], datasets: [] },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { position: 'top' },
-      title: { display: true, text: 'Niederschlag der letzten 30 Tage' },
-    },
-    scales: {
-      x: {
-        title: { display: true, text: 'Datum' },
-        ticks: {
-          font: { size: 9 },
-          callback: function(value) {
-            const label = this.getLabelForValue(value);
-            const date = new Date(label);
-            if (!isNaN(date)) {
-              return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-            }
-            return label;
-          }
-        }
-      },
-      y: {
-        beginAtZero: true,
-        title: { display: true, text: 'Regen (mm)' }
-      }
-    }
-  }
-};
-
-myChart3 = new Chart(ctx3, config3);
-
-function updateChart3() {
-  fetch("https://im3garden.laraeberhard.ch/etl-boilerplate/unload.php")
-    .then(response => response.json())
-    .then(jsonData => {
-      config3.data.labels = [];
-      config3.data.datasets = [];
-
-      const grouped = {};
-      jsonData.forEach(item => {
-        const date = item.time.split(' ')[0];
-        if (!grouped[item.city]) grouped[item.city] = [];
-        grouped[item.city].push({ date, rain: item.rain });
-      });
-
-      const allDates = [...new Set(jsonData.map(i => i.time.split(' ')[0]))].sort();
-      config3.data.labels = allDates;
-
-      const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080', '#008080', '#A52A2A'];
-
-      Object.keys(grouped).forEach((city, i) => {
-        const rainData = allDates.map(date => {
-          const record = grouped[city].find(d => d.date === date);
-          return record ? record.rain : null;
-        });
-
-        config3.data.datasets.push({
-          label: city,
-          data: rainData,
-          backgroundColor: colors[i % colors.length] + '80',
-          borderColor: colors[i % colors.length],
-          borderWidth: 1,
-          hidden: i > 2
-        });
-      });
-
-      myChart3.update();
-    })
-    .catch(console.error);
+// === Sofort und stündlich aktualisieren ===
+function startAutoUpdate() {
+    updateCharts(); // direkt beim Laden
+    setInterval(updateCharts, 3_600_000); // jede Stunde
 }
 
-updateChart3();
+// Auto-Update starten
+startAutoUpdate();
+
 
 // === Optional: tägliche Aktualisierung ===
 setInterval(() => {
-  updateChart();
-  updateChart2();
-  updateChart3();
-}, 86_400_000);
+    updateChart();
+    updateChart2();
+    updateChart3();
+  }, 3_600_000); // 1 Stunde in Millisekunden
+

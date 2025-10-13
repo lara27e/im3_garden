@@ -39,6 +39,18 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    text-align: center;
+
+    /* Optional: maximale Breite */
+    max-width: 800px;
+    width: 90%; /* passt sich dem Bildschirm an */
+}
+
+/* Bild automatisch anpassen */
+.karten_block img {
+    width: 100%;    /* Bild nimmt die volle Breite des Containers ein */
+    height: auto;   /* Höhe passt sich proportional an */
+    border-radius: 20px; /* optional: abgerundete Ecken für das Bild */
 }
 
 .karten_bild {
