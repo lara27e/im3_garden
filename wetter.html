@@ -89,8 +89,12 @@
     background-color: #3e6e3e;
   }
   #backToTop span {
-    font-size: 100px;
+    font-size: 10px;
     line-height: 0;
+  }
+  #backToTop img {
+  width: 45px;   
+  height: 45px;
   }
 </style>
 </head>
@@ -109,7 +113,7 @@
 
 <button id="backToTop">
   back to the top 
-  <span><img src="Pfeil.svg" alt="Pfeil"> </span>
+  <img src="Pfeil.svg" alt="Pfeil">
 </button>
 
 <script>
@@ -118,8 +122,18 @@ button.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 window.addEventListener('scroll', () => {
-  button.style.display = window.scrollY > 200 ? 'flex' : 'none';
+  const scrollTop = window.scrollY; // wie weit nach oben gescrollt
+  const windowHeight = window.innerHeight; // sichtbarer Bereich
+  const documentHeight = document.documentElement.scrollHeight; // gesamte Seitenhöhe
+
+  // Wenn man fast am Ende der Seite ist (z.B. 100px vor Ende)
+  if (scrollTop + windowHeight >= documentHeight - 100) {
+    button.style.display = 'flex';
+  } else {
+    button.style.display = 'none';
+  }
 });
+
 </script>
 
 </body>
