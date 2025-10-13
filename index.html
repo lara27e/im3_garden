@@ -8,15 +8,29 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div>
-        <h1>HALLO</h1>
+    <div class="titel_block">
+        <h1>Pflanzenwetter</h1>
+        <p>Musst du deinen Pflanzen Wasser geben?</p>
+        <p>Finde es JETZT heraus!</p>
     </div>
-    <h1>Wetterdaten der letzten 30 Tage</h1>
-
-    <canvas id="myChart" width="800" height="400"></canvas>
-    <canvas id="myChart2" width="800" height="400"></canvas>
-    <canvas id="myChart3" width="800" height="400"></canvas>
-
+<br>
+<div class="karten_block">
+    <img src="/bilder/karte.png" alt="Karte">
+</div>
+    
+<div class="charts">
+    <div class="chart-container">
+        <div class="chart-wrapper">
+            <canvas id="myChart"></canvas>
+        </div>  
+        <div class="chart-wrapper">
+            <canvas id="myChart2"></canvas>
+        </div>
+        <div class="chart-wrapper">
+            <canvas id="myChart3"></canvas>
+        </div>
+    </div>
+</div>
     <script src="test.js"></script>
 </body>
 </html>
