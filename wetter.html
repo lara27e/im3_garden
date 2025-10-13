@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wetterkarte + Back to Top</title>
+<style>
+@font-face {
+  font-family: 'Chewy', cursive;
+  src: url('fonts/Chewy-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+  /* Gemeinsame Body-Styles */
+  body {
+    margin: 0;
+    padding: 0;
+    font-family:'Chewy', cursive;
+    background-color: #214a2c; /* dunkelgrün für Wetterkarte */
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Platz für Scrollen */
+    min-height: 2000px; /* Scroll-Demo */
+    padding-top: 50px;
+  }
+
+  /* Wetterkarte */
+  .weather-card {
+    background-color: #3d703f;
+    color: white;
+    border: 6px solid #d1e8c9;
+    border-radius: 75px;
+    width: 230px;
+    padding: 20px;
+    text-align: left;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    margin-bottom: 1000px; /* Platz zum Scrollen */
+  }
+  .weather-card h2 {
+    text-align: center;
+    font-size: 3em;
+    margin: 0;
+  }
+  .weather-card hr {
+    border: none;
+    border-top: 2px solid #b7d9ac;
+    margin: 8px 0 16px;
+  }
+  .info {
+    font-size: 1.2em;
+    line-height: 1.8em;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+  .temp {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 2.8em;
+    font-weight: bold;
+    border: 3px solid #b7d9ac;
+    border-radius: 50px;
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2e5a31;
+  }
+
+  /* Back to Top Button */
+  #backToTop {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #2e4c2e;
+    color: #e6e6d9;
+    border: 4px solid #d1e8c9;
+    padding: 20px 30px;
+    border-radius: 50px;
+    font-size: 22px;
+    font-family: 'Chewy', cursive;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    display: none; /* versteckt am Anfang */
+  }
+  #backToTop:hover {
+    background-color: #3e6e3e;
+  }
+  #backToTop span {
+    font-size: 100px;
+    line-height: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="weather-card">
+  <h2>Lausanne</h2>
+  <hr>
+  <div class="info"><span>UV Index:</span><span>3</span></div>
+  <div class="info"><span>Rain:</span><span>1 mm</span></div>
+  <div class="info"><span>Wetter:</span><span>bewölkt</span></div>
+  <div style="text-align:center;">
+    <div class="temp">9°C</div>
+  </div>
+</div>
+
+<button id="backToTop">
+  back to the top 
+  <span><img src="Pfeil.svg" alt="Pfeil"> </span>
+</button>
+
+<script>
+const button = document.getElementById('backToTop');
+button.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+window.addEventListener('scroll', () => {
+  button.style.display = window.scrollY > 200 ? 'flex' : 'none';
+});
+</script>
+
+</body>
+</html>
