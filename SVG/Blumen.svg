@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1654.46 332.5">
+<svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1654.46 332.5">
   <defs>
-    <image id="image" width="2048" height="2048" xlink:href="../bilder/blume.png"/>
+    <image id="image" width="2048" height="2048" xlink:href="../../bilder/blume.png"/>
   </defs>
-  <use transform="translate(0 90.55) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(625.46 116.4) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(800.33 152.78) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(445.22 75.34) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(261.06 134.34) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(161.16) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(951.15 51.14) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(1062.23 179.2) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(1237.53 115.66) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(1371.17 11.8) scale(.07)" xlink:href="#image"/>
-  <use transform="translate(1501.16 131.61) scale(.07)" xlink:href="#image"/>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <use transform="translate(0 90.55) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(625.46 116.4) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(800.33 152.78) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(445.22 75.34) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(261.06 134.34) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(161.16) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(951.15 51.14) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(1062.23 179.2) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(1237.53 115.66) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(1371.17 11.8) scale(.07)" xlink:href="#image"/>
+      <use transform="translate(1501.16 131.61) scale(.07)" xlink:href="#image"/>
+    </g>
+  </g>
 </svg>
