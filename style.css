@@ -26,7 +26,7 @@ body {
     padding-bottom: 32px;
     border-radius: 40px;
     border: 5px solid #E5F0D7;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     display: inline-block;
     z-index: 1;
 }
@@ -55,7 +55,7 @@ body {
 }
 
 .karten_bild {
-    width: 700px;
+    width: 100%;
     height: auto;
 }
 
@@ -69,8 +69,8 @@ body {
 .chart-container {
     display: flex;
     flex-direction: column;
-    width: 800px;  /* gewünschte Breite */
-    height: 1300px; /* gewünschte Höhe */
+    width: auto;  /* gewünschte Breite */
+    height: auto; /* gewünschte Höhe */
     justify-content: center;
     align-items: center;
     max-width: 800px;
@@ -86,12 +86,140 @@ body {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     max-width: 800px;
     width: 90%;
-    height: 400px;  /* gewünschte Höhe */
-    padding: 10px;
+    height: 380px;
     margin: 10px;
+    /* 🔧 Kein Padding mehr */
+    padding: 0;
+    position: relative;
 }
 
 canvas {
-    width: 100% !important;
-    height: 100% !important;
+    /* 🔧 Kein !important mehr! Chart.js kontrolliert die Größe selbst */
+    width: 100%;
+    height: 100%;
+    display: block;
 }
+
+.karte-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 800px;
+  }
+  
+  .punkt {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #23A12C;
+    border: 3px solid #81D587;
+    border-radius: 50%;
+    cursor: pointer;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+  
+  /* 🌼 Die Blume liegt als unsichtbare Ebene über dem Punkt */
+  .punkt::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("bilder/blume.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  /* Hover: Punkt wird größer & durchsichtig, Blume blendet sanft ein */
+  .punkt:hover {
+    background-color: transparent;
+    border: none;
+    width: 50px;
+    height: 50px;
+  }
+  
+  /* Hover-Effekt für die Blume */
+  .punkt:hover::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+ /* Overlay jetzt ohne Hintergrund */
+.overlay {
+    position: absolute; /* Overlay direkt auf Seite */
+    pointer-events: none; /* Klicks durch Overlay durchlassen */
+  }
+  
+/* Overlay für Hover-Tooltips */
+.overlay-content {
+    position: absolute;
+    background-color: #3d703f;
+    color: white;
+    border: 6px solid #d1e8c9;
+    border-radius: 75px;
+    width: 230px;
+    padding: 20px;
+    text-align: left;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    transform-origin: center center;
+    transform: scale(0.5);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease, top 0.3s ease, left 0.3s ease;
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  .overlay-content.show {
+    transform: scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  .overlay-content h2 {
+    text-align: center;
+    font-size: 2.2em;
+    margin: 0;
+  }
+  
+  .overlay-content hr {
+    border: none;
+    border-top: 2px solid #b7d9ac;
+    margin: 8px 0 16px;
+  }
+  
+  .overlay-content .info {
+    font-size: 1.2em;
+    line-height: 1.8em;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+  
+  .overlay-content .temp {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 2.5em;
+    font-weight: bold;
+    border: 3px solid #b7d9ac;
+    border-radius: 50px;
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2e5a31;
+  }
+  
+  
+  @media (max-width: 600px) {
+    .punkt {
+      width: 14px;
+      height: 14px;
+    }
+    .punkt:hover {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  

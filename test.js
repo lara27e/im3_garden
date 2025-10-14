@@ -8,6 +8,8 @@ function buildChart(ctx, type, title, yLabel, dataKey) {
         data: { labels: [], datasets: [] },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            responsive: true,
             plugins: {
                 legend: { position: 'top' },
                 title: { display: true, text: title },
@@ -117,3 +119,59 @@ setInterval(() => {
     updateChart3();
   }, 3_600_000); // 1 Stunde in Millisekunden
 
+  document.addEventListener('DOMContentLoaded', () => {
+    const punkte = document.querySelectorAll('.punkt');
+  
+    const overlay = document.createElement('div');
+    overlay.classList.add('overlay');
+  
+    const overlayContent = document.createElement('div');
+    overlayContent.classList.add('overlay-content');
+  
+    overlayContent.innerHTML = `
+      <h2></h2>
+      <hr>
+      <div class="info"><span>UV Index:</span><span>3</span></div>
+      <div class="info"><span>Rain:</span><span>1 mm</span></div>
+      <div class="info"><span>Wetter:</span><span>bewölkt</span></div>
+      <div style="text-align:center;">
+        <div class="temp">9°C</div>
+      </div>
+    `;
+  
+    overlay.appendChild(overlayContent);
+    document.body.appendChild(overlay);
+  
+    punkte.forEach(punkt => {
+      punkt.addEventListener('mouseenter', () => {
+        const city = punkt.getAttribute('data-city');
+        overlayContent.querySelector('h2').textContent = city;
+  
+        const rect = punkt.getBoundingClientRect();
+        const overlayWidth = overlayContent.offsetWidth;
+        const overlayHeight = overlayContent.offsetHeight;
+  
+        let top = rect.top + window.scrollY - overlayHeight / 2;
+        let left = rect.left + window.scrollX + rect.width / 2;
+  
+        const margin = 10;
+        if (top < margin) top = margin;
+        if (top + overlayHeight > window.scrollY + window.innerHeight - margin) {
+          top = window.scrollY + window.innerHeight - overlayHeight - margin;
+        }
+        if (left + overlayWidth > window.innerWidth - margin) {
+          left = window.innerWidth - overlayWidth - margin;
+        }
+  
+        overlayContent.style.top = `${top}px`;
+        overlayContent.style.left = `${left}px`;
+  
+        overlayContent.classList.add('show');
+      });
+  
+      punkt.addEventListener('mouseleave', () => {
+        overlayContent.classList.remove('show');
+      });
+    });
+  });
+  
