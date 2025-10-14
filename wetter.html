@@ -17,7 +17,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Chewy', cursive;
-  background-color: #225125;
+  background-color: #d1e8c9;
   color: white;
   display: flex;
   justify-content: center;
@@ -73,8 +73,8 @@ body {
   bottom: 30px;
   right: 30px;
   background-color: #225125;
-  color: #e6e6d9;
-  border: 4px solid #E5F0D7;
+  color: white;
+  border: 4px solid #b7d9ac;
   padding: 20px 30px;
   border-radius: 50px;
   font-size: 22px;
@@ -103,6 +103,16 @@ body {
 #backToTop:hover img {
   content: url("SVG/PfeilGruen.svg"); /* Hover-Pfeil */
 }
+
+.back-to-top {
+    background-color: #21411E; /* gleiche Farbe wie Footer */
+    color: white;
+    border-radius: 25px;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-family: 'Comic Sans/* Footer-Bereich */
+}
+
 </style>
 </head>
 <body>
@@ -141,4 +151,73 @@ window.addEventListener('scroll', () => {
 </script>
 
 </body>
+
+<footer>
+  <div class="footer-bar">
+    <span class="footer-text">Website made by Lara & Melinda</span>
+    <button id="backToTop">back to the top <img alt="Pfeil"></button>
+  </div>
+</footer>
+<style>
+  /* Footer-Bereich */
+footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: auto; /* Footer am Ende der Seite */
+}
+
+/* Grüner Balken */
+.footer-bar {
+  background-color: #21411E;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  align-items: center; /* vertikale Zentrierung */
+  justify-content: space-between; /* Text links, Button rechts */
+  padding: 0 40px;
+  box-sizing: border-box;
+}
+
+/* Text links */
+.footer-text {
+  font-family: 'Chewy', cursive;
+  font-size: 24px;
+  color: #E5F0D7;
+}
+
+/* Button im Footer (positioniert rechts) */
+#backToTop {
+  position: static; /* entfernt fixed */
+  display: flex; 
+  align-items: center;
+  gap: 10px;
+  background-color: #225125;
+  color: #white;
+  border: 4px solid #E5F0D7;
+  padding: 20px 30px;
+  border-radius: 50px;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+#backToTop img {
+  color: #E5F0D7;
+  width: 50px;
+  height: 50px;
+  content: url("SVG/Pfeil.svg");
+}
+
+/* Hover-Zustand bleibt */
+#backToTop:hover {
+  background-color: #E5F0D7;
+  color: #408945;
+}
+#backToTop:hover img {
+  content: url("SVG/PfeilGruen.svg");
+}
+
+</style>
+
 </html>
