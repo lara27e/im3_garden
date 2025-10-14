@@ -229,10 +229,13 @@ function renderOverlayBlocks(jsonData) {
     row1.innerHTML = '';
     row2.innerHTML = '';
 
+    // Alle Städte einmalig bestimmen
     const cities = [...new Set(jsonData.map(item => item.city))];
 
     cities.forEach((city, i) => {
+        // Alle Einträge der Stadt
         const cityData = jsonData.filter(item => item.city === city);
+        // Letzter Eintrag nach Zeit sortiert
         const lastRecord = cityData[cityData.length - 1];
 
         const block = document.createElement('div');
@@ -241,10 +244,11 @@ function renderOverlayBlocks(jsonData) {
             <h2>${city}</h2>
             <div class="info"><span>UV Index:</span><span>${lastRecord.uvi}</span></div>
             <div class="info"><span>Rain:</span><span>${lastRecord.rain} mm</span></div>
-            <div class="info"><span>Wetter:</span><span>${lastRecord.weather || 'n/a'}</span></div>
-            <div class="temp">${lastRecord.temperatur}°C</div>
+            <div class="info"><span>Wetter:</span><span>${lastRecord.weather_code}</span></div>
+            <div class="temp">${lastRecord.temperatur.toFixed(1)}°C</div>
         `;
 
+        // Erst 4 Blöcke in Reihe 1, Rest in Reihe 2
         if (i < 4) {
             row1.appendChild(block);
         } else {

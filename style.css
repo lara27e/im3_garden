@@ -144,13 +144,11 @@ body {
     width: 90%;
     height: 380px;
     margin: 10px;
-    /* 🔧 Kein Padding mehr */
     padding: 0;
     position: relative;
 }
 
 canvas {
-    /* 🔧 Kein !important mehr! Chart.js kontrolliert die Größe selbst */
     width: 100%;
     height: 100%;
     display: block;
@@ -227,7 +225,6 @@ canvas {
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease, top 0.3s ease, left 0.3s ease;
     z-index: 10;
-    pointer-events: auto; /* jetzt klickbar */
   }
   
   .overlay-content.show {
@@ -275,6 +272,7 @@ canvas {
     border-radius: 40px;
     border: 5px solid #E5F0D7;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    margin: 20px;
   }
 
   * {
@@ -373,7 +371,7 @@ canvas {
 }
 
 .row {
-    flex-wrap: wrap;      /* Blöcke umbrechen, wenn Platz fehlt */
+    flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
 }
@@ -400,13 +398,29 @@ canvas {
     .overlay-block {
         width: 100%;  /* 1 Block pro Reihe */
     }
+
+    .karten_block {
+        margin-top: 20px;
+    }
+
+    .stadtname {
+        display: block;
+        font-size: 10px;
+      }
+
+      .punkt {
+        width: 15px;
+        height: 15px;
+        border: 2px solid #81D587;
+      }
+      
 }
 
 .stadtname {
     display: none;
     position: absolute;
     font-family: Chewy;
-    font-size: 1.3rem;
+    font-size: auto;
     color: #225125;
   }
   
@@ -418,7 +432,6 @@ canvas {
   
     .stadtname {
       display: block;
-      font-size: 1rem;
     }
   
     .punkt:hover {
