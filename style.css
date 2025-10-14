@@ -154,8 +154,7 @@ canvas {
     pointer-events: none; /* Klicks durch Overlay durchlassen */
   }
   
-/* Overlay für Hover-Tooltips */
-.overlay-content {
+  .overlay-content {
     position: absolute;
     background-color: #3d703f;
     color: white;
@@ -165,18 +164,17 @@ canvas {
     padding: 20px;
     text-align: left;
     box-shadow: 0 5px 10px rgba(0,0,0,0.2);
-    transform-origin: center center;
+    transform-origin: top left;
     transform: scale(0.5);
     opacity: 0;
     transition: transform 0.3s ease, opacity 0.3s ease, top 0.3s ease, left 0.3s ease;
     z-index: 10;
-    pointer-events: none;
+    pointer-events: auto; /* jetzt klickbar */
   }
   
   .overlay-content.show {
     transform: scale(1);
     opacity: 1;
-    pointer-events: auto;
   }
   
   .overlay-content h2 {
@@ -209,17 +207,5 @@ canvas {
     display: inline-block;
     padding: 10px 20px;
     background-color: #2e5a31;
-  }
-  
-  
-  @media (max-width: 600px) {
-    .punkt {
-      width: 14px;
-      height: 14px;
-    }
-    .punkt:hover {
-      width: 20px;
-      height: 20px;
-    }
   }
   

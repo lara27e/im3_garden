@@ -122,12 +122,8 @@ setInterval(() => {
   document.addEventListener('DOMContentLoaded', () => {
     const punkte = document.querySelectorAll('.punkt');
   
-    const overlay = document.createElement('div');
-    overlay.classList.add('overlay');
-  
     const overlayContent = document.createElement('div');
     overlayContent.classList.add('overlay-content');
-  
     overlayContent.innerHTML = `
       <h2></h2>
       <hr>
@@ -138,12 +134,14 @@ setInterval(() => {
         <div class="temp">9°C</div>
       </div>
     `;
+    document.body.appendChild(overlayContent);
   
-    overlay.appendChild(overlayContent);
-    document.body.appendChild(overlay);
+    let hoverTimeout;
   
     punkte.forEach(punkt => {
       punkt.addEventListener('mouseenter', () => {
+        clearTimeout(hoverTimeout);
+  
         const city = punkt.getAttribute('data-city');
         overlayContent.querySelector('h2').textContent = city;
   
@@ -151,8 +149,8 @@ setInterval(() => {
         const overlayWidth = overlayContent.offsetWidth;
         const overlayHeight = overlayContent.offsetHeight;
   
-        let top = rect.top + window.scrollY - overlayHeight / 2;
-        let left = rect.left + window.scrollX + rect.width / 2;
+        let top = rect.top + window.scrollY - overlayHeight / 2 - 10; 
+        let left = rect.left + window.scrollX + rect.width / 2 + 20;
   
         const margin = 10;
         if (top < margin) top = margin;
@@ -165,13 +163,29 @@ setInterval(() => {
   
         overlayContent.style.top = `${top}px`;
         overlayContent.style.left = `${left}px`;
-  
         overlayContent.classList.add('show');
       });
   
       punkt.addEventListener('mouseleave', () => {
-        overlayContent.classList.remove('show');
+        hoverTimeout = setTimeout(() => {
+          if (!overlayContent.matches(':hover')) { // nur ausblenden, wenn Maus nicht auf Overlay
+            overlayContent.classList.remove('show');
+          }
+        }, 50);
       });
+    });
+  
+    // Overlay selbst: bei Mouseleave ausblenden
+    overlayContent.addEventListener('mouseleave', () => {
+      overlayTimeout = setTimeout(() => {
+        if (!Array.from(punkte).some(p => p.matches(':hover'))) {
+          overlayContent.classList.remove('show');
+        }
+      }, 50);
+    });
+  
+    overlayContent.addEventListener('mouseenter', () => {
+      clearTimeout(hoverTimeout);
     });
   });
   
