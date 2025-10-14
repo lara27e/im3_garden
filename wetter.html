@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Wetterkarte + Back to Top</title>
 <style>
 @font-face {
@@ -20,8 +20,8 @@ body {
   background-color: #d1e8c9;
   color: white;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   min-height: 2000px; /* Scroll-Demo */
   padding-top: 50px;
 }
@@ -67,50 +67,77 @@ body {
   background-color: #408945;
 }
 
-/* Back to Top Button */
-#backToTop {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
+/* Footer-Bereich */
+footer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+}
+
+/* Grüner Balken */
+.footer-bar {
+  background-color: #21411E;
+  width: 100vw;
+  /* negative margins oft problematisch; besser container centriert lassen */
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* Bild in Footer (Blumen) */
+.footer-img {
+  width: 180px;
+  height: auto;
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
+/* Text links */
+.footer-text {
+  font-family: 'Chewy', cursive;
+  font-size: 24px;
+  color: #E5F0D7;
+  position: absolute;
+  bottom: 75px;
+  left: 75px; /* nach rechts vom Bild platzieren */
+}
+
+/* Back to Top Button (einzigartig id) */
+#backToTopBtn {
+  position: absolute;
+  bottom: 75px;
+  right: 75px;
   background-color: #225125;
   color: white;
-  border: 4px solid #b7d9ac;
+  border: 5px solid #b7d9ac;
   padding: 20px 30px;
   border-radius: 50px;
   font-size: 22px;
   font-family: 'Chewy', cursive;
   cursor: pointer;
-  display: flex;
+  display: none; /* versteckt am Anfang */
   align-items: center;
   gap: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  display: none; /* versteckt am Anfang */
 }
 
-#backToTop img {
+/* Arrow image inside button */
+#backToTopBtn img {
   width: 50px;
   height: 50px;
   transition: all 0.3s ease;
-  content: url("SVG/Pfeil.svg"); /* Standardpfeil */
 }
 
 /* Hover-Zustand: Hintergrund UND Pfeil ändern */
-#backToTop:hover {
+#backToTopBtn:hover {
   background-color: #E5F0D7;
   color: #408945;
-}
-
-#backToTop:hover img {
-  content: url("SVG/PfeilGruen.svg"); /* Hover-Pfeil */
-}
-
-.back-to-top {
-    background-color: #21411E; /* gleiche Farbe wie Footer */
-    color: white;
-    border-radius: 25px;
-    padding: 10px 20px;
-    text-decoration: none;
-    font-family: 'Comic Sans/* Footer-Bereich */
 }
 
 </style>
@@ -128,96 +155,60 @@ body {
   </div>
 </div>
 
-<button id="backToTop">
-  back to the top 
-  <img alt="Pfeil">
-</button>
+<footer>
+  <div class="footer-bar">
+    <!-- Stelle sicher, dass die Datei existiert: SVG/Blumen.svg relativ zur HTML-Datei -->
+    <img src="SVG/Blumen.svg" alt="Blumen" class="footer-img" />
+    <span class="footer-text">Website made by Lara &amp; Melinda</span>
+
+    <!-- EIN Back-to-Top Button im Footer mit eindeutiger ID -->
+    <button id="backToTopBtn" aria-label="Back to top">
+      back to the top
+      <!-- echtes src-Attribut für den Pfeil -->
+      <img id="backToTopArrow" src="SVG/Pfeil.svg" alt="Pfeil" />
+    </button>
+  </div>
+</footer>
 
 <script>
-const button = document.getElementById('backToTop');
-button.addEventListener('click', () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-window.addEventListener('scroll', () => {
-  const scrollTop = window.scrollY;
-  const windowHeight = window.innerHeight;
-  const documentHeight = document.documentElement.scrollHeight;
-  if (scrollTop + windowHeight >= documentHeight - 100) {
-    button.style.display = 'flex';
-  } else {
-    button.style.display = 'none';
+/* Script für Footer-Button.
+   Wichtige Punkte: ID muss eindeutig sein und script nach Footer stehen (so sind Elemente bereits im DOM). */
+const backBtn = document.getElementById('backToTopBtn');
+const arrowImg = document.getElementById('backToTopArrow');
+
+if (backBtn) {
+  backBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // Sichtbarkeit regeln: Button zeigen, wenn man nahe am Seitenende ist
+  function checkScroll() {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    // Zeige Button wenn wir innerhalb 150px vom Ende sind
+    if (scrollTop + windowHeight >= documentHeight - 150) {
+      backBtn.style.display = 'flex';
+    } else {
+      backBtn.style.display = 'none';
+    }
   }
-});
+
+  // Pfeil ändern beim Hover: hier JS fallback falls du separate SVGs willst
+  backBtn.addEventListener('mouseenter', () => {
+    // Versuche das Hover-Bild zu setzen — nur wenn Datei existiert
+    arrowImg.src = 'SVG/PfeilGruen.svg';
+  });
+  backBtn.addEventListener('mouseleave', () => {
+    arrowImg.src = 'SVG/Pfeil.svg';
+  });
+
+  // Initial check & on scroll/resize
+  checkScroll();
+  window.addEventListener('scroll', checkScroll);
+  window.addEventListener('resize', checkScroll);
+}
 </script>
 
 </body>
-
-<footer>
-  <div class="footer-bar">
-    <span class="footer-text">Website made by Lara & Melinda</span>
-    <button id="backToTop">back to the top <img alt="Pfeil"></button>
-  </div>
-</footer>
-<style>
-  /* Footer-Bereich */
-footer {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: auto; /* Footer am Ende der Seite */
-}
-
-/* Grüner Balken */
-.footer-bar {
-  background-color: #21411E;
-  width: 100%;
-  height: 200px;
-  display: flex;
-  align-items: center; /* vertikale Zentrierung */
-  justify-content: space-between; /* Text links, Button rechts */
-  padding: 0 40px;
-  box-sizing: border-box;
-}
-
-/* Text links */
-.footer-text {
-  font-family: 'Chewy', cursive;
-  font-size: 24px;
-  color: #E5F0D7;
-}
-
-/* Button im Footer (positioniert rechts) */
-#backToTop {
-  position: static; /* entfernt fixed */
-  display: flex; 
-  align-items: center;
-  gap: 10px;
-  background-color: #225125;
-  color: #white;
-  border: 4px solid #E5F0D7;
-  padding: 20px 30px;
-  border-radius: 50px;
-  font-size: 22px;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-}
-
-#backToTop img {
-  color: #E5F0D7;
-  width: 50px;
-  height: 50px;
-  content: url("SVG/Pfeil.svg");
-}
-
-/* Hover-Zustand bleibt */
-#backToTop:hover {
-  background-color: #E5F0D7;
-  color: #408945;
-}
-#backToTop:hover img {
-  content: url("SVG/PfeilGruen.svg");
-}
-
-</style>
-
 </html>
