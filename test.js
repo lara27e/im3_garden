@@ -121,71 +121,142 @@ setInterval(() => {
 
   document.addEventListener('DOMContentLoaded', () => {
     const punkte = document.querySelectorAll('.punkt');
-  
+
     const overlayContent = document.createElement('div');
     overlayContent.classList.add('overlay-content');
     overlayContent.innerHTML = `
       <h2></h2>
       <hr>
-      <div class="info"><span>UV Index:</span><span>3</span></div>
-      <div class="info"><span>Rain:</span><span>1 mm</span></div>
-      <div class="info"><span>Wetter:</span><span>bewölkt</span></div>
+      <div class="info"><span>UV Index:</span><span class="uv">-</span></div>
+      <div class="info"><span>Rain:</span><span class="rain">-</span></div>
+      <div class="info"><span>Wetter:</span><span class="weather">-</span></div>
       <div style="text-align:center;">
-        <div class="temp">9°C</div>
+        <div class="temp">-°C</div>
       </div>
     `;
     document.body.appendChild(overlayContent);
-  
+
+    let dataCache = []; // Hier speichern wir die JSON-Daten
+
+    // Daten von der API abrufen
+    fetch("https://im3garden.laraeberhard.ch/etl-boilerplate/unload.php")
+        .then(response => response.json())
+        .then(jsonData => {
+            dataCache = jsonData; // Daten zwischenspeichern
+        })
+        .catch(console.error);
+
     let hoverTimeout;
-  
+
     punkte.forEach(punkt => {
-      punkt.addEventListener('mouseenter', () => {
-        clearTimeout(hoverTimeout);
-  
-        const city = punkt.getAttribute('data-city');
-        overlayContent.querySelector('h2').textContent = city;
-  
-        const rect = punkt.getBoundingClientRect();
-        const overlayWidth = overlayContent.offsetWidth;
-        const overlayHeight = overlayContent.offsetHeight;
-  
-        let top = rect.top + window.scrollY - overlayHeight / 2 - 10; 
-        let left = rect.left + window.scrollX + rect.width / 2 + 20;
-  
-        const margin = 10;
-        if (top < margin) top = margin;
-        if (top + overlayHeight > window.scrollY + window.innerHeight - margin) {
-          top = window.scrollY + window.innerHeight - overlayHeight - margin;
-        }
-        if (left + overlayWidth > window.innerWidth - margin) {
-          left = window.innerWidth - overlayWidth - margin;
-        }
-  
-        overlayContent.style.top = `${top}px`;
-        overlayContent.style.left = `${left}px`;
-        overlayContent.classList.add('show');
-      });
-  
-      punkt.addEventListener('mouseleave', () => {
-        hoverTimeout = setTimeout(() => {
-          if (!overlayContent.matches(':hover')) { // nur ausblenden, wenn Maus nicht auf Overlay
-            overlayContent.classList.remove('show');
-          }
-        }, 50);
-      });
+        punkt.addEventListener('mouseenter', () => {
+            clearTimeout(hoverTimeout);
+
+            const city = punkt.getAttribute('data-city');
+            overlayContent.querySelector('h2').textContent = city;
+
+            // Heutiges Datum als yyyy-mm-dd
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+
+            // Letzten Eintrag von heute für die Stadt finden
+            const cityData = dataCache
+                .filter(item => item.city === city && item.time.startsWith(todayStr))
+                .sort((a, b) => new Date(b.time) - new Date(a.time))[0];
+
+            if (cityData) {
+                overlayContent.querySelector('.uv').textContent = cityData.uvi;
+                overlayContent.querySelector('.rain').textContent = cityData.rain + ' mm';
+                overlayContent.querySelector('.weather').textContent = cityData.weather_code;
+                overlayContent.querySelector('.temp').textContent = cityData.temperatur.toFixed(1) + '°C';
+            } else {
+                // Falls keine Daten für heute vorhanden sind
+                overlayContent.querySelector('.uv').textContent = '-';
+                overlayContent.querySelector('.rain').textContent = '-';
+                overlayContent.querySelector('.weather').textContent = '-';
+                overlayContent.querySelector('.temp').textContent = '-°C';
+            }
+
+            const rect = punkt.getBoundingClientRect();
+            const overlayWidth = overlayContent.offsetWidth;
+            const overlayHeight = overlayContent.offsetHeight;
+
+            let top = rect.top + window.scrollY - overlayHeight / 2 - 10;
+            let left = rect.left + window.scrollX + rect.width / 2 + 20;
+
+            const margin = 10;
+            if (top < margin) top = margin;
+            if (top + overlayHeight > window.scrollY + window.innerHeight - margin) {
+                top = window.scrollY + window.innerHeight - overlayHeight - margin;
+            }
+            if (left + overlayWidth > window.innerWidth - margin) {
+                left = window.innerWidth - overlayWidth - margin;
+            }
+
+            overlayContent.style.top = `${top}px`;
+            overlayContent.style.left = `${left}px`;
+            overlayContent.classList.add('show');
+        });
+
+        punkt.addEventListener('mouseleave', () => {
+            hoverTimeout = setTimeout(() => {
+                if (!overlayContent.matches(':hover')) {
+                    overlayContent.classList.remove('show');
+                }
+            }, 50);
+        });
     });
-  
-    // Overlay selbst: bei Mouseleave ausblenden
+
     overlayContent.addEventListener('mouseleave', () => {
-      overlayTimeout = setTimeout(() => {
-        if (!Array.from(punkte).some(p => p.matches(':hover'))) {
-          overlayContent.classList.remove('show');
-        }
-      }, 50);
+        hoverTimeout = setTimeout(() => {
+            if (!Array.from(punkte).some(p => p.matches(':hover'))) {
+                overlayContent.classList.remove('show');
+            }
+        }, 50);
     });
-  
+
     overlayContent.addEventListener('mouseenter', () => {
-      clearTimeout(hoverTimeout);
+        clearTimeout(hoverTimeout);
     });
-  });
-  
+});
+
+function renderOverlayBlocks(jsonData) {
+    const row1 = document.getElementById('row-1');
+    const row2 = document.getElementById('row-2');
+    row1.innerHTML = '';
+    row2.innerHTML = '';
+
+    const cities = [...new Set(jsonData.map(item => item.city))];
+
+    cities.forEach((city, i) => {
+        const cityData = jsonData.filter(item => item.city === city);
+        const lastRecord = cityData[cityData.length - 1];
+
+        const block = document.createElement('div');
+        block.classList.add('overlay-block');
+        block.innerHTML = `
+            <h2>${city}</h2>
+            <div class="info"><span>UV Index:</span><span>${lastRecord.uvi}</span></div>
+            <div class="info"><span>Rain:</span><span>${lastRecord.rain} mm</span></div>
+            <div class="info"><span>Wetter:</span><span>${lastRecord.weather || 'n/a'}</span></div>
+            <div class="temp">${lastRecord.temperatur}°C</div>
+        `;
+
+        if (i < 4) {
+            row1.appendChild(block);
+        } else {
+            row2.appendChild(block);
+        }
+    });
+}
+
+// Daten laden & Blöcke rendern
+fetch("https://im3garden.laraeberhard.ch/etl-boilerplate/unload.php")
+    .then(res => res.json())
+    .then(data => {
+        renderOverlayBlocks(data);
+        updateCharts(); // falls Charts noch aktualisiert werden sollen
+    });
