@@ -1,5 +1,5 @@
 // === Farben für alle Charts ===
-const colors = ['#FF0000', '#0000FF', '#008000', '#FFA500', '#800080', '#008080', '#A52A2A'];
+const colors = ['#81D587', '#225125', '#23A12C', '#CAD9B9', '#BEBEBE', '#FFB787', '#FFCAA7'];
 
 // === Allgemeine Funktion zum Aufbau der Charts ===
 function buildChart(ctx, type, title, yLabel, dataKey) {
@@ -14,9 +14,16 @@ function buildChart(ctx, type, title, yLabel, dataKey) {
                 legend: { position: 'top' },
                 title: { display: true, text: title },
             },
+            layout: {            // <-- hier hinzufügen
+                padding: {
+                    right: 20,   // Abstand rechts
+                    left: 10     // optional links
+                }
+            },
             scales: {
                 x: {
                     title: { display: true, text: 'Datum + Stunde' },
+                    offset: true,
                     ticks: {
                         font: { size: 9 },
                         callback: function(value) {
@@ -224,19 +231,16 @@ setInterval(() => {
 });
 
 function renderOverlayBlocks(jsonData) {
-    const row1 = document.getElementById('row-1');
-    const row2 = document.getElementById('row-2');
-    row1.innerHTML = '';
-    row2.innerHTML = '';
+    const container = document.getElementById('overlay-list');
+    container.innerHTML = ''; // alles leeren, bevor neu gerendert wird
 
-    // Alle Städte einmalig bestimmen
     const cities = [...new Set(jsonData.map(item => item.city))];
 
-    cities.forEach((city, i) => {
-        // Alle Einträge der Stadt
+    cities.forEach(city => {
         const cityData = jsonData.filter(item => item.city === city);
-        // Letzter Eintrag nach Zeit sortiert
         const lastRecord = cityData[cityData.length - 1];
+
+        if (!lastRecord) return; // Sicherheit, falls keine Daten
 
         const block = document.createElement('div');
         block.classList.add('overlay-block');
@@ -248,12 +252,7 @@ function renderOverlayBlocks(jsonData) {
             <div class="temp">${lastRecord.temperatur.toFixed(1)}°C</div>
         `;
 
-        // Erst 4 Blöcke in Reihe 1, Rest in Reihe 2
-        if (i < 4) {
-            row1.appendChild(block);
-        } else {
-            row2.appendChild(block);
-        }
+        container.appendChild(block);
     });
 }
 
@@ -262,5 +261,7 @@ fetch("https://im3garden.laraeberhard.ch/etl-boilerplate/unload.php")
     .then(res => res.json())
     .then(data => {
         renderOverlayBlocks(data);
-        updateCharts(); // falls Charts noch aktualisiert werden sollen
-    });
+        updateCharts();
+    })
+    .catch(console.error);
+
