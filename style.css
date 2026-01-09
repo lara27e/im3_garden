@@ -66,12 +66,16 @@ body {
     }
 }
 
-/* Kleine Screens / Smartphones */
 @media (max-width: 600px) {
     .titel_block {
         padding: 20px;
         padding-bottom: 24px;
         border-radius: 30px;
+
+        /* Neu: zentrieren */
+        margin: 20px auto; /* oben/unten 20px, horizontal automatisch */
+        display: block;    /* sicherstellen, dass es block ist */
+        text-align: center;
     }
 
     .titel_block h1 {
@@ -443,7 +447,7 @@ footer {
 /* Blumen */
 .footer-img {
     position: absolute;
-    top: -120px; /* große Screens */
+    top: -160px; /* große Screens */
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
@@ -505,16 +509,47 @@ footer {
     color: #408945;
 }
 
-.giesskanne-block img {
-    width: 20%;        /* 20% der Containerbreite */
-    max-width: 150px;  /* maximale Größe auf großen Bildschirmen */
-    min-width: 80px;   /* minimale Größe auf kleinen Bildschirmen */
-    height: auto;
-    margin-bottom: 10px;
+.giesskanne-block {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
 }
 
-.giesskanne-block p {
-    font-size: 1.2rem;  /* feste Größe, skaliert mit Textzoom */
-    margin: 0;
-    text-align: center;
+.giesskanne-block img {
+    height: 100px;
+    width: auto;
+}
+
+.giesskanne-block span {
+    font-family: 'Chewy', cursive;
+    font-size: 2rem;
+    color: #FFFEF7;
+}
+
+/* Medium Screens */
+@media (max-width: 900px) {
+    .giesskanne-block img {
+        height: 40px;
+    }
+
+    .giesskanne-block span {
+        font-size: 1.5rem;
+    }
+}
+
+/* Kleine Screens / Smartphones */
+@media (max-width: 600px) {
+    .giesskanne-block {
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .giesskanne-block img {
+        height: 30px;
+    }
+
+    .giesskanne-block span {
+        font-size: 1.2rem;
+    }
 }
