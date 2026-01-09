@@ -265,3 +265,45 @@ fetch("https://im3garden.laraeberhard.ch/etl-boilerplate/unload.php")
     })
     .catch(console.error);
 
+    document.addEventListener('DOMContentLoaded', () => {
+        /* Script für Footer-Button
+           ID muss eindeutig sein */
+        const backBtn = document.getElementById('backToTopBtn');
+        const arrowImg = document.getElementById('backToTopArrow');
+      
+        if (!backBtn) return;
+      
+        backBtn.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      
+        // Sichtbarkeit regeln: Button zeigen, wenn man nahe am Seitenende ist
+        function checkScroll() {
+          const scrollTop = window.scrollY || document.documentElement.scrollTop;
+          const windowHeight = window.innerHeight;
+          const documentHeight = document.documentElement.scrollHeight;
+      
+          // Zeige Button wenn wir innerhalb 150px vom Ende sind
+          if (scrollTop + windowHeight >= documentHeight - 150) {
+            backBtn.style.display = 'flex';
+          } else {
+            backBtn.style.display = 'none';
+          }
+        }
+      
+        // Hover-Pfeil wechseln
+        if (arrowImg) {
+          backBtn.addEventListener('mouseenter', () => {
+            arrowImg.src = 'SVG/PfeilGruen.svg';
+          });
+      
+          backBtn.addEventListener('mouseleave', () => {
+            arrowImg.src = 'SVG/Pfeil.svg';
+          });
+        }
+      
+        // Initial & Events
+        checkScroll();
+        window.addEventListener('scroll', checkScroll);
+        window.addEventListener('resize', checkScroll);
+      });
